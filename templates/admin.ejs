@@ -1,0 +1,200 @@
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Panel de Administrador</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+</head>
+<body class="bg-light">
+    <nav class="navbar navbar-dark bg-dark">
+        <div class="container-fluid">
+            <span class="navbar-brand mb-0 h1">Panel de Administración</span>
+            <a href="/admin/logout" class="btn btn-outline-light btn-sm">Cerrar Sesión</a>
+        </div>
+    </nav>
+
+    <div class="container mt-4">
+        <ul class="nav nav-tabs" id="adminTabs">
+            <li class="nav-item">
+                <a class="nav-link active" data-bs-toggle="tab" href="#pedidos">Pedidos</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" data-bs-toggle="tab" href="#productos">Productos</a>
+            </li>
+        </ul>
+
+        <div class="tab-content mt-3">
+            <!-- Pestaña Pedidos -->
+            <div class="tab-pane fade show active" id="pedidos">
+                <h3>Últimos Pedidos</h3>
+                <div class="table-responsive">
+                    <table class="table table-striped table-hover bg-white shadow-sm">
+                        <thead>
+                            <tr>
+                                <th>Fecha</th>
+                                <th>Cliente</th>
+                                <th>Teléfono</th>
+                                <th>Total</th>
+                                <th>Estado</th>
+                                <th>Acción</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <% [...orders].reverse().forEach(order => { %>
+                                <tr>
+                                    <td><%= order.Fecha %></td>
+                                    <td><%= order.Cliente %></td>
+                                    <td><%= order.Telefono %></td>
+                                    <td>$<%= order.Total %></td>
+                                    <td>
+                                        <span class="badge <%= order.Estado === 'Completado' ? 'bg-success' : 'bg-warning text-dark' %>">
+                                            <%= order.Estado %>
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <button type="button" class="btn btn-sm btn-info" data-bs-toggle="modal" data-bs-target="#orderModal<%= order.ID %>">
+                                            Ver Detalles
+                                        </button>
+                                        <form action="/admin/update-order/<%= order.ID %>" method="POST" class="d-inline">
+                                            <input type="hidden" name="estado" value="Completado">
+                                            <button type="submit" class="btn btn-sm btn-success" <%= order.Estado === 'Completado' ? 'disabled' : '' %>>
+                                                <i class="bi bi-check"></i> Completar
+                                            </button>
+                                        </form>
+                                    </td>
+                                </tr>
+                                
+                                <!-- Modal Detalles Pedido -->
+                                <div class="modal fade" id="orderModal<%= order.ID %>" tabindex="-1">
+                                  <div class="modal-dialog">
+                                    <div class="modal-content">
+                                      <div class="modal-header">
+                                        <h5 class="modal-title">Detalles del Pedido</h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                      </div>
+                                      <div class="modal-body">
+                                        <p><strong>Cliente:</strong> <%= order.Cliente %></p>
+                                        <p><strong>Teléfono:</strong> <%= order.Telefono %></p>
+                                        <hr>
+                                        <h6>Productos:</h6>
+                                        <ul class="list-group">
+                                            <% 
+                                                let parsedProducts = [];
+                                                try { parsedProducts = JSON.parse(order.Productos); } catch(e){}
+                                            %>
+                                            <% parsedProducts.forEach(p => { %>
+                                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                                    <%= p.nombre %> (x<%= p.cantidad %>)
+                                                    <span>$<%= p.precio * p.cantidad %></span>
+                                                </li>
+                                            <% }) %>
+                                        </ul>
+                                        <h5 class="text-end mt-3">Total: $<%= order.Total %></h5>
+                                      </div>
+                                    </div>
+                                  </div>
+                                </div>
+
+                            <% }) %>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Pestaña Productos -->
+            <div class="tab-pane fade" id="productos">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h3>Inventario</h3>
+                    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addProductModal">
+                        <i class="bi bi-plus-circle"></i> Añadir Producto
+                    </button>
+                </div>
+                
+                <div class="table-responsive">
+                    <table class="table table-bordered bg-white shadow-sm">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Imagen</th>
+                                <th>Nombre</th>
+                                <th>Categoría</th>
+                                <th>Precio</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <% products.forEach(p => { %>
+                                <tr>
+                                    <td>
+                                        <% if(p.Imagen) { %>
+                                            <img src="<%= p.Imagen %>" alt="img" style="width: 50px; height: 50px; object-fit: cover;">
+                                        <% } else { %>
+                                            N/A
+                                        <% } %>
+                                    </td>
+                                    <td><%= p.Nombre %></td>
+                                    <td><%= p.Categoria %></td>
+                                    <td>$<%= p.Precio %></td>
+                                    <td>
+                                        <form action="/admin/delete-product/<%= p.ID %>" method="POST" onsubmit="return confirm('¿Seguro que quieres eliminar este producto?');">
+                                            <button type="submit" class="btn btn-sm btn-danger"><i class="bi bi-trash"></i></button>
+                                        </form>
+                                    </td>
+                                </tr>
+                            <% }) %>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Añadir Producto -->
+    <div class="modal fade" id="addProductModal" tabindex="-1">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <form action="/admin/add-product" method="POST" enctype="multipart/form-data">
+              <div class="modal-header">
+                <h5 class="modal-title">Añadir Nuevo Producto</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+              </div>
+              <div class="modal-body">
+                <div class="mb-3">
+                    <label class="form-label">Nombre</label>
+                    <input type="text" name="nombre" class="form-control" required>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Descripción</label>
+                    <textarea name="descripcion" class="form-control" rows="2"></textarea>
+                </div>
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Precio ($)</label>
+                        <input type="number" step="0.01" name="precio" class="form-control" required>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Categoría</label>
+                        <select name="categoria" class="form-select" required>
+                            <option value="Hombre">Hombre</option>
+                            <option value="Mujer">Mujer</option>
+                            <option value="Descuento">Descuento</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Imagen</label>
+                    <input type="file" name="imagen" class="form-control" accept="image/*">
+                </div>
+              </div>
+              <div class="modal-footer">
+                <button type="submit" class="btn btn-primary">Guardar Producto</button>
+              </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
