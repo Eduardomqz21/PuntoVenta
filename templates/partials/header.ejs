@@ -1,41 +1,73 @@
-
 <!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Novedades Ameyalli</title>
+    <title>Novedades Ameyalli | Catálogo Web y Tienda de Ropa</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Bootstrap 5.3 & Icons -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <!-- Estilos Personalizados -->
     <link rel="stylesheet" href="/css/style.css">
 </head>
 <body>
-    <nav class="navbar navbar-expand-lg fixed-top">
+    <!-- Navbar fija con efecto Glassmorphism -->
+    <nav class="navbar navbar-expand-lg fixed-top shadow-sm py-2">
         <div class="container">
-            <a class="navbar-brand d-flex align-items-center" href="/">
-                <i class="bi bi-shop me-2 text-primary"></i> Novedades Ameyalli
+            <a class="navbar-brand d-flex align-items-center me-3" href="/">
+                <i class="bi bi-shop me-2 fs-4 text-primary"></i>
+                <span class="fw-bold tracking-tight">Novedades Ameyalli</span>
             </a>
-            <button class="navbar-toggler border-0 shadow-none" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            
+            <button class="navbar-toggler border-0 shadow-none p-1" type="button" data-bs-toggle="collapse" data-bs-target="#navbarMain" aria-controls="navbarMain" aria-expanded="false" aria-label="Navegación">
                 <span class="navbar-toggler-icon"></span>
             </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav ms-auto mb-2 mb-lg-0 fw-semibold">
+            
+            <div class="collapse navbar-collapse" id="navbarMain">
+                <!-- Barra de búsqueda rápida de catálogo -->
+                <form class="d-flex my-2 my-lg-0 mx-lg-auto col-lg-5" action="/" method="GET" role="search">
+                    <div class="input-group search-bar-group w-100">
+                        <span class="input-group-text bg-white border-end-0 rounded-start-pill text-muted ps-3">
+                            <i class="bi bi-search"></i>
+                        </span>
+                        <input type="text" name="q" class="form-control border-start-0 rounded-end-pill py-2 pe-3" placeholder="Buscar prendas, blusas, vestidos..." value="<%= typeof searchQuery !== 'undefined' ? searchQuery : '' %>" aria-label="Buscar productos">
+                    </div>
+                </form>
+
+                <!-- Categorías principales -->
+                <ul class="navbar-nav mb-2 mb-lg-0 fw-semibold align-items-lg-center">
                     <li class="nav-item mx-1">
-                        <a class="nav-link px-3 rounded-pill hover-bg" href="/categoria/hombre">Hombre</a>
+                        <a class="nav-link px-3 rounded-pill hover-bg <%= (typeof category !== 'undefined' && category.toLowerCase() === 'hombre') ? 'active-nav' : '' %>" href="/categoria/hombre">
+                            <i class="bi bi-gender-male me-1"></i> Hombre
+                        </a>
                     </li>
                     <li class="nav-item mx-1">
-                        <a class="nav-link px-3 rounded-pill hover-bg" href="/categoria/mujer">Mujer</a>
+                        <a class="nav-link px-3 rounded-pill hover-bg <%= (typeof category !== 'undefined' && category.toLowerCase() === 'mujer') ? 'active-nav' : '' %>" href="/categoria/mujer">
+                            <i class="bi bi-gender-female me-1"></i> Mujer
+                        </a>
                     </li>
                     <li class="nav-item mx-1">
-                        <a class="nav-link px-3 rounded-pill hover-bg text-danger" href="/categoria/descuento">
-                            <i class="bi bi-tag-fill"></i> Descuento
+                        <a class="nav-link px-3 rounded-pill hover-bg text-danger <%= (typeof category !== 'undefined' && category.toLowerCase() === 'descuento') ? 'active-nav' : '' %>" href="/categoria/descuento">
+                            <i class="bi bi-tag-fill me-1"></i> Descuentos
                         </a>
                     </li>
                 </ul>
-                <div class="d-flex ms-lg-4 mt-3 mt-lg-0">
-                    <a href="/carrito" class="btn btn-outline-dark rounded-pill px-4 d-flex align-items-center position-relative">
-                        <i class="bi bi-bag me-2"></i> Mi Bolsa
-                        <span id="cart-count" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+
+                <!-- Acceso rápido: Carrito y Admin si está logueado -->
+                <div class="d-flex align-items-center ms-lg-3 mt-3 mt-lg-0">
+                    <% if (typeof isAdmin !== 'undefined' && isAdmin) { %>
+                        <a href="/admin" class="btn btn-outline-primary btn-sm rounded-pill px-3 me-2 d-flex align-items-center shadow-sm">
+                            <i class="bi bi-speedometer2 me-1"></i> Panel Admin
+                        </a>
+                    <% } %>
+                    <a href="/carrito" class="btn btn-primary rounded-pill px-4 d-flex align-items-center position-relative shadow-sm cart-btn-hover">
+                        <i class="bi bi-bag-fill me-2 fs-6"></i>
+                        <span>Mi Bolsa</span>
+                        <span id="cart-count" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger shadow-sm">
                             0
                         </span>
                     </a>
@@ -44,5 +76,5 @@
         </div>
     </nav>
     
-    <!-- Spacing for fixed navbar -->
-    <div style="height: 80px;"></div>
+    <!-- Espaciador para la barra fija -->
+    <div style="height: 85px;"></div>

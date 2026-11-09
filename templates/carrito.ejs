@@ -1,65 +1,150 @@
-
 <%- include('partials/header') %>
 
-<div class="container mt-5 pt-4 animate-fade-up">
-    <div class="d-flex align-items-center mb-4">
-        <i class="bi bi-bag-check fs-2 me-3 text-primary"></i>
-        <h2 class="fw-bold mb-0">Tu Bolsa de Compras</h2>
+<main class="container my-5 pt-2 animate-fade-up">
+    <!-- Encabezado de la Bolsa -->
+    <div class="d-flex align-items-center justify-content-between mb-4 flex-wrap gap-2">
+        <div class="d-flex align-items-center">
+            <div class="icon-circle bg-primary-subtle text-primary me-3 p-3 rounded-circle">
+                <i class="bi bi-bag-check fs-2"></i>
+            </div>
+            <div>
+                <h1 class="fw-bold h2 mb-0">Tu Bolsa de Compras</h1>
+                <p class="text-muted small mb-0">Revisa tus artículos antes de confirmar el apartado para recolección en tienda.</p>
+            </div>
+        </div>
+        <a href="/" class="btn btn-outline-secondary rounded-pill btn-sm px-3">
+            <i class="bi bi-arrow-left me-1"></i> Seguir Comprando
+        </a>
     </div>
     
-    <div class="row mt-4 g-4">
+    <div class="row g-4">
+        <!-- Lista de Productos en la Bolsa -->
         <div class="col-lg-8 animate-fade-up delay-1">
-            <div class="card shadow-sm border-0">
+            <div class="card shadow-sm border-0 rounded-4 overflow-hidden">
+                <div class="card-header bg-white py-3 border-bottom d-flex justify-content-between align-items-center">
+                    <h5 class="fw-bold mb-0 text-dark">Prendas Seleccionadas</h5>
+                    <span class="badge bg-light text-muted border" id="cart-item-count">Artículos en bolsa</span>
+                </div>
                 <div class="card-body p-4">
                     <div id="cart-items-container">
-                        <!-- Rendered by cart.js -->
-                    </div>
-                    <div class="text-end mt-4 pt-3 border-top">
-                        <h4 class="fw-bold">Total a Pagar: <span class="text-primary">$<span id="cart-total">0.00</span></span></h4>
+                        <!-- Generado reactivamente por cart.js -->
                     </div>
                 </div>
             </div>
         </div>
         
+        <!-- Tarjeta de Resumen y Datos de Recolección -->
         <div class="col-lg-4 animate-fade-up delay-2">
-            <div class="card shadow-sm border-0 bg-primary text-white">
+            <div class="card shadow-sm border-0 rounded-4 sticky-top" style="top: 105px;">
+                <!-- Header informativo -->
+                <div class="card-header bg-primary text-white p-4 border-0 rounded-top-4">
+                    <h5 class="card-title fw-bold mb-1 d-flex align-items-center">
+                        <i class="bi bi-shop-window me-2"></i> Apartado en Tienda
+                    </h5>
+                    <p class="small text-white-50 mb-0">Recoge y paga directamente en nuestro mostrador físico.</p>
+                </div>
+
                 <div class="card-body p-4">
-                    <h5 class="card-title fw-bold mb-1"><i class="bi bi-truck me-2"></i>Datos de Entrega</h5>
-                    <p class="small text-white-50 mb-4">Pago y entrega directamente en tienda física.</p>
-                    
-                    <form id="checkout-form">
+                    <!-- Resumen de Costos -->
+                    <div class="border-bottom pb-3 mb-3">
+                        <div class="d-flex justify-content-between mb-2">
+                            <span class="text-muted">Subtotal</span>
+                            <span class="fw-semibold text-dark">$<span id="cart-subtotal">0.00</span> MXN</span>
+                        </div>
+                        <div class="d-flex justify-content-between mb-2">
+                            <span class="text-muted">Costo por Apartado</span>
+                            <span class="text-success fw-semibold">Gratis</span>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center mt-3 pt-2 border-top">
+                            <span class="fs-5 fw-bold text-dark">Total Estimado</span>
+                            <span class="fs-4 fw-bold text-primary">$<span id="cart-total">0.00</span> <small class="fs-6 font-monospace">MXN</small></span>
+                        </div>
+                    </div>
+
+                    <!-- Formulario de Checkout -->
+                    <form id="checkout-form" novalidate>
                         <div class="mb-3">
-                            <label class="form-label text-white-50 small text-uppercase fw-bold">Nombre Completo</label>
-                            <input type="text" class="form-control bg-white border-0" id="cliente-nombre" placeholder="Ej. Ana López" required>
+                            <label for="cliente-nombre" class="form-label text-dark small fw-bold text-uppercase">
+                                Nombre Completo <span class="text-danger">*</span>
+                            </label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light border-end-0 text-muted">
+                                    <i class="bi bi-person"></i>
+                                </span>
+                                <input type="text" class="form-control border-start-0 ps-0" id="cliente-nombre" placeholder="Ej. Ana Martínez" required minlength="3">
+                            </div>
+                            <div class="form-text small">Indica tu nombre para apartar tu pedido en mostrador.</div>
                         </div>
+
                         <div class="mb-4">
-                            <label class="form-label text-white-50 small text-uppercase fw-bold">Teléfono de Contacto</label>
-                            <input type="tel" class="form-control bg-white border-0" id="cliente-telefono" placeholder="Ej. 55 1234 5678" required>
+                            <label for="cliente-telefono" class="form-label text-dark small fw-bold text-uppercase">
+                                Teléfono de Contacto (10 dígitos) <span class="text-danger">*</span>
+                            </label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light border-end-0 text-muted">
+                                    <i class="bi bi-telephone"></i>
+                                </span>
+                                <input type="tel" class="form-control border-start-0 ps-0" id="cliente-telefono" placeholder="Ej. 3312345678" required maxlength="10">
+                            </div>
+                            <div class="form-text small">Te enviaremos confirmación para que pases a recoger.</div>
                         </div>
-                        <button type="submit" class="btn btn-light w-100 fw-bold py-3 text-primary shadow">
+
+                        <button type="submit" id="checkout-submit-btn" class="btn btn-primary w-100 fw-bold py-3 rounded-pill shadow">
                             Confirmar Pedido <i class="bi bi-arrow-right ms-2"></i>
                         </button>
                     </form>
+
+                    <!-- Beneficios -->
+                    <div class="mt-4 pt-3 border-top">
+                        <div class="d-flex align-items-center text-muted small mb-2">
+                            <i class="bi bi-shield-check text-success fs-5 me-2"></i>
+                            <span>Apartado garantizado por 48 horas en tienda</span>
+                        </div>
+                        <div class="d-flex align-items-center text-muted small">
+                            <i class="bi bi-cash-coin text-primary fs-5 me-2"></i>
+                            <span>Pagas en efectivo o tarjeta al recoger</span>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
-</div>
+</main>
 
-<!-- Modal -->
-<div class="modal fade" id="successModal" tabindex="-1">
-  <div class="modal-dialog modal-dialog-centered">
-    <div class="modal-content border-0 shadow-lg border-radius-xl">
-      <div class="modal-body text-center p-5">
-        <div class="mb-4">
-            <i class="bi bi-check-circle-fill text-success" style="font-size: 4rem;"></i>
+<!-- Modal de Confirmación de Pedido Exitoso -->
+<div class="modal fade" id="successModal" data-bs-backdrop="static" tabindex="-1" aria-labelledby="successModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
+            <div class="modal-body text-center p-5">
+                <div class="mb-3">
+                    <div class="d-inline-flex p-3 rounded-circle bg-success-subtle text-success animate-bounce">
+                        <i class="bi bi-check-circle-fill" style="font-size: 3.5rem;"></i>
+                    </div>
+                </div>
+                <h3 class="fw-bold mb-2 text-dark" id="successModalLabel">¡Pedido Apartado con Éxito!</h3>
+                <p class="text-muted mb-3">Hemos registrado tu orden y reservado tu inventario en tienda física.</p>
+                
+                <div class="card bg-light border-0 rounded-3 p-3 mb-4 text-start">
+                    <div class="d-flex justify-content-between mb-1">
+                        <span class="text-muted small">Número de Orden:</span>
+                        <strong class="text-dark" id="modal-order-id">#0000</strong>
+                    </div>
+                    <div class="d-flex justify-content-between mb-1">
+                        <span class="text-muted small">Total a Pagar en Tienda:</span>
+                        <strong class="text-primary" id="modal-order-total">$0.00 MXN</strong>
+                    </div>
+                    <div class="d-flex justify-content-between">
+                        <span class="text-muted small">Modalidad:</span>
+                        <span class="badge bg-white text-dark border">Pago contra entrega en tienda</span>
+                    </div>
+                </div>
+
+                <a href="/" class="btn btn-primary w-100 py-3 rounded-pill fw-bold shadow-sm">
+                    <i class="bi bi-arrow-left me-1"></i> Volver a la Tienda
+                </a>
+            </div>
         </div>
-        <h3 class="fw-bold mb-3">¡Pedido Confirmado!</h3>
-        <p class="text-muted mb-4">Hemos recibido tu orden. Te esperamos en la tienda para realizar el pago y entregarte tus productos.</p>
-        <a href="/" class="btn btn-primary px-4 py-2 rounded-pill fw-bold">Volver al Catálogo</a>
-      </div>
     </div>
-  </div>
 </div>
 
 <%- include('partials/footer') %>

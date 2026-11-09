@@ -1,200 +1,825 @@
-
 <!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Panel de Administrador</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel Administrativo | Novedades Ameyalli</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Bootstrap 5.3 & Icons -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <!-- Estilos Personalizados -->
+    <link rel="stylesheet" href="/css/style.css">
 </head>
 <body class="bg-light">
-    <nav class="navbar navbar-dark bg-dark">
+    <!-- Barra Superior del Administrador -->
+    <nav class="navbar navbar-dark bg-dark px-3 py-2 shadow-sm sticky-top">
         <div class="container-fluid">
-            <span class="navbar-brand mb-0 h1">Panel de Administración</span>
-            <a href="/admin/logout" class="btn btn-outline-light btn-sm">Cerrar Sesión</a>
+            <div class="d-flex align-items-center">
+                <a class="navbar-brand d-flex align-items-center fw-bold me-3" href="/admin">
+                    <i class="bi bi-shield-lock-fill text-primary me-2 fs-5"></i>
+                    <span>Novedades Ameyalli <small class="text-muted fs-6 fw-normal ms-2 d-none d-sm-inline">| Panel de Control</small></span>
+                </a>
+                <span class="badge bg-secondary-subtle text-secondary-emphasis border d-none d-md-inline-block">
+                    <i class="bi bi-person-badge me-1"></i> <%= adminUser || 'Administrador' %>
+                </span>
+            </div>
+            
+            <div class="d-flex align-items-center gap-2">
+                <a href="/" target="_blank" class="btn btn-outline-light btn-sm rounded-pill px-3" title="Abrir tienda en nueva pestaña">
+                    <i class="bi bi-box-arrow-up-right me-1"></i> Ver Catálogo Web
+                </a>
+                <a href="/admin/logout" class="btn btn-danger btn-sm rounded-pill px-3">
+                    <i class="bi bi-box-arrow-right me-1"></i> Salir
+                </a>
+            </div>
         </div>
     </nav>
 
-    <div class="container mt-4">
-        <ul class="nav nav-tabs" id="adminTabs">
-            <li class="nav-item">
-                <a class="nav-link active" data-bs-toggle="tab" href="#pedidos">Pedidos</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" data-bs-toggle="tab" href="#productos">Productos</a>
-            </li>
-        </ul>
-
-        <div class="tab-content mt-3">
-            <!-- Pestaña Pedidos -->
-            <div class="tab-pane fade show active" id="pedidos">
-                <h3>Últimos Pedidos</h3>
-                <div class="table-responsive">
-                    <table class="table table-striped table-hover bg-white shadow-sm">
-                        <thead>
-                            <tr>
-                                <th>Fecha</th>
-                                <th>Cliente</th>
-                                <th>Teléfono</th>
-                                <th>Total</th>
-                                <th>Estado</th>
-                                <th>Acción</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <% [...orders].reverse().forEach(order => { %>
-                                <tr>
-                                    <td><%= order.Fecha %></td>
-                                    <td><%= order.Cliente %></td>
-                                    <td><%= order.Telefono %></td>
-                                    <td>$<%= order.Total %></td>
-                                    <td>
-                                        <span class="badge <%= order.Estado === 'Completado' ? 'bg-success' : 'bg-warning text-dark' %>">
-                                            <%= order.Estado %>
-                                        </span>
-                                    </td>
-                                    <td>
-                                        <button type="button" class="btn btn-sm btn-info" data-bs-toggle="modal" data-bs-target="#orderModal<%= order.ID %>">
-                                            Ver Detalles
-                                        </button>
-                                        <form action="/admin/update-order/<%= order.ID %>" method="POST" class="d-inline">
-                                            <input type="hidden" name="estado" value="Completado">
-                                            <button type="submit" class="btn btn-sm btn-success" <%= order.Estado === 'Completado' ? 'disabled' : '' %>>
-                                                <i class="bi bi-check"></i> Completar
-                                            </button>
-                                        </form>
-                                    </td>
-                                </tr>
-                                
-                                <!-- Modal Detalles Pedido -->
-                                <div class="modal fade" id="orderModal<%= order.ID %>" tabindex="-1">
-                                  <div class="modal-dialog">
-                                    <div class="modal-content">
-                                      <div class="modal-header">
-                                        <h5 class="modal-title">Detalles del Pedido</h5>
-                                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                                      </div>
-                                      <div class="modal-body">
-                                        <p><strong>Cliente:</strong> <%= order.Cliente %></p>
-                                        <p><strong>Teléfono:</strong> <%= order.Telefono %></p>
-                                        <hr>
-                                        <h6>Productos:</h6>
-                                        <ul class="list-group">
-                                            <% 
-                                                let parsedProducts = [];
-                                                try { parsedProducts = JSON.parse(order.Productos); } catch(e){}
-                                            %>
-                                            <% parsedProducts.forEach(p => { %>
-                                                <li class="list-group-item d-flex justify-content-between align-items-center">
-                                                    <%= p.nombre %> (x<%= p.cantidad %>)
-                                                    <span>$<%= p.precio * p.cantidad %></span>
-                                                </li>
-                                            <% }) %>
-                                        </ul>
-                                        <h5 class="text-end mt-3">Total: $<%= order.Total %></h5>
-                                      </div>
-                                    </div>
-                                  </div>
-                                </div>
-
-                            <% }) %>
-                        </tbody>
-                    </table>
+    <div class="container-fluid px-lg-5 py-4">
+        <!-- Tarjetas de Métricas Ejecutivas / KPIs -->
+        <div class="row g-3 mb-4 animate-fade-up">
+            <div class="col-xl-3 col-sm-6">
+                <div class="card border-0 shadow-sm p-3 rounded-4 bg-white h-100">
+                    <div class="d-flex align-items-center">
+                        <div class="p-3 bg-success-subtle text-success rounded-4 me-3 fs-3">
+                            <i class="bi bi-cash-stack"></i>
+                        </div>
+                        <div>
+                            <span class="text-muted small fw-bold text-uppercase d-block">Ventas Cobradas</span>
+                            <h3 class="fw-bold mb-0 text-dark">$<%= (stats.ingresosTotales || 0).toFixed(2) %> <small class="fs-6 text-muted">MXN</small></h3>
+                        </div>
+                    </div>
                 </div>
             </div>
 
-            <!-- Pestaña Productos -->
-            <div class="tab-pane fade" id="productos">
-                <div class="d-flex justify-content-between align-items-center mb-3">
-                    <h3>Inventario</h3>
-                    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addProductModal">
-                        <i class="bi bi-plus-circle"></i> Añadir Producto
+            <div class="col-xl-3 col-sm-6">
+                <div class="card border-0 shadow-sm p-3 rounded-4 bg-white h-100">
+                    <div class="d-flex align-items-center">
+                        <div class="p-3 bg-warning-subtle text-warning-emphasis rounded-4 me-3 fs-3">
+                            <i class="bi bi-hourglass-split"></i>
+                        </div>
+                        <div>
+                            <span class="text-muted small fw-bold text-uppercase d-block">Pedidos Pendientes</span>
+                            <h3 class="fw-bold mb-0 text-dark"><%= stats.pedidosPendientes || 0 %></h3>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-xl-3 col-sm-6">
+                <div class="card border-0 shadow-sm p-3 rounded-4 bg-white h-100">
+                    <div class="d-flex align-items-center">
+                        <div class="p-3 bg-primary-subtle text-primary rounded-4 me-3 fs-3">
+                            <i class="bi bi-tag-fill"></i>
+                        </div>
+                        <div>
+                            <span class="text-muted small fw-bold text-uppercase d-block">Prendas en Catálogo</span>
+                            <h3 class="fw-bold mb-0 text-dark"><%= stats.totalProductos || 0 %></h3>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-xl-3 col-sm-6">
+                <div class="card border-0 shadow-sm p-3 rounded-4 bg-white h-100">
+                    <div class="d-flex align-items-center">
+                        <div class="p-3 <%= (stats.productosAgotados > 0) ? 'bg-danger-subtle text-danger' : 'bg-light text-muted' %> rounded-4 me-3 fs-3">
+                            <i class="bi bi-exclamation-octagon-fill"></i>
+                        </div>
+                        <div>
+                            <span class="text-muted small fw-bold text-uppercase d-block">Agotados / Stock Bajo</span>
+                            <h3 class="fw-bold mb-0 <%= (stats.productosAgotados > 0) ? 'text-danger' : 'text-dark' %>">
+                                <%= stats.productosAgotados %> <small class="fs-6 text-muted">(<%= stats.productosStockBajo %> críticos)</small>
+                            </h3>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Pestañas de Navegación Principal -->
+        <div class="card border-0 shadow-sm rounded-4 overflow-hidden mb-5">
+            <div class="card-header bg-white border-bottom p-3">
+                <ul class="nav nav-pills card-header-pills" id="adminTabs" role="tablist">
+                    <li class="nav-item me-2" role="presentation">
+                        <button class="nav-link active px-4 py-2 rounded-pill fw-bold" id="pedidos-tab" data-bs-toggle="pill" data-bs-target="#tab-pedidos" type="button" role="tab" aria-selected="true">
+                            <i class="bi bi-receipt me-2"></i> Pedidos y Órdenes
+                            <span class="badge bg-warning text-dark ms-2 rounded-pill"><%= stats.pedidosPendientes %></span>
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link px-4 py-2 rounded-pill fw-bold" id="productos-tab" data-bs-toggle="pill" data-bs-target="#tab-productos" type="button" role="tab" aria-selected="false">
+                            <i class="bi bi-boxes me-2"></i> Inventario y Productos
+                            <span class="badge bg-light text-dark border ms-2 rounded-pill"><%= stats.totalProductos %></span>
+                        </button>
+                    </li>
+                </ul>
+            </div>
+
+            <div class="card-body p-4">
+                <div class="tab-content" id="adminTabContent">
+                    
+                    <!-- ========================================== -->
+                    <!-- PESTAÑA 1: GESTIÓN DE PEDIDOS              -->
+                    <!-- ========================================== -->
+                    <div class="tab-pane fade show active" id="tab-pedidos" role="tabpanel" aria-labelledby="pedidos-tab">
+                        <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
+                            <div>
+                                <h4 class="fw-bold mb-1 text-dark">Registro de Pedidos</h4>
+                                <p class="text-muted small mb-0">Administra las órdenes generadas por los clientes desde la web para entrega y cobro en mostrador.</p>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="input-group input-group-sm">
+                                    <span class="input-group-text bg-white border-end-0 text-muted">
+                                        <i class="bi bi-search"></i>
+                                    </span>
+                                    <input type="text" id="orderSearchInput" class="form-control border-start-0" placeholder="Buscar cliente, teléfono o # orden...">
+                                </div>
+                            </div>
+                        </div>
+
+                        <% if (orders.length === 0) { %>
+                            <div class="text-center py-5">
+                                <i class="bi bi-clipboard-x text-muted" style="font-size: 3rem;"></i>
+                                <h5 class="fw-bold mt-3 text-secondary">Aún no hay pedidos registrados</h5>
+                                <p class="text-muted small">Cuando un cliente arme su bolsa y confirme el pedido, aparecerá inmediatamente aquí.</p>
+                            </div>
+                        <% } else { %>
+                            <div class="table-responsive">
+                                <table class="table table-hover align-middle mb-0" id="ordersTable">
+                                    <thead class="table-light text-muted small text-uppercase">
+                                        <tr>
+                                            <th>Orden</th>
+                                            <th>Fecha y Hora</th>
+                                            <th>Cliente</th>
+                                            <th>Teléfono</th>
+                                            <th>Total</th>
+                                            <th>Estado</th>
+                                            <th class="text-end">Acciones</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <% orders.forEach(order => { 
+                                            let badgeClass = 'bg-warning text-dark';
+                                            if (order.Estado === 'Completado') badgeClass = 'bg-success text-white';
+                                            if (order.Estado === 'Cancelado') badgeClass = 'bg-danger text-white';
+                                        %>
+                                            <tr id="order-row-<%= order.ID %>">
+                                                <td>
+                                                    <span class="fw-bold text-dark font-monospace">#<%= order.ID %></span>
+                                                </td>
+                                                <td class="small text-muted"><%= order.Fecha %></td>
+                                                <td>
+                                                    <strong class="text-dark"><%= order.Cliente %></strong>
+                                                </td>
+                                                <td>
+                                                    <a href="tel:<%= order.Telefono %>" class="text-decoration-none text-muted small">
+                                                        <i class="bi bi-telephone-fill me-1 text-primary"></i> <%= order.Telefono %>
+                                                    </a>
+                                                </td>
+                                                <td>
+                                                    <span class="fw-bold text-dark fs-6">$<%= parseFloat(order.Total).toFixed(2) %></span>
+                                                </td>
+                                                <td>
+                                                    <span class="badge rounded-pill <%= badgeClass %> px-3 py-2" id="order-badge-<%= order.ID %>">
+                                                        <%= order.Estado %>
+                                                    </span>
+                                                </td>
+                                                <td class="text-end">
+                                                    <!-- Botón Ver Detalles -->
+                                                    <button type="button" class="btn btn-sm btn-outline-primary rounded-pill px-3 me-1" data-bs-toggle="modal" data-bs-target="#orderModal<%= order.ID %>">
+                                                        <i class="bi bi-eye"></i> Detalle
+                                                    </button>
+
+                                                    <!-- Botón Completar Rápido -->
+                                                    <% if (order.Estado === 'Pendiente') { %>
+                                                        <button type="button" class="btn btn-sm btn-success rounded-pill px-3 me-1" onclick="changeOrderStatus('<%= order.ID %>', 'Completado')">
+                                                            <i class="bi bi-check2"></i> Completar
+                                                        </button>
+                                                        <button type="button" class="btn btn-sm btn-outline-danger rounded-pill px-2" onclick="changeOrderStatus('<%= order.ID %>', 'Cancelado')" title="Cancelar y restaurar stock">
+                                                            <i class="bi bi-x"></i>
+                                                        </button>
+                                                    <% } else if (order.Estado === 'Completado') { %>
+                                                        <span class="text-success small fw-bold me-2"><i class="bi bi-check-circle-fill"></i> Entregado</span>
+                                                    <% } else { %>
+                                                        <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill px-2" onclick="changeOrderStatus('<%= order.ID %>', 'Pendiente')" title="Reactivar pedido">
+                                                            <i class="bi bi-arrow-counterclockwise"></i> Reactivar
+                                                        </button>
+                                                    <% } %>
+                                                </td>
+                                            </tr>
+
+                                            <!-- Modal Detalle del Pedido -->
+                                            <div class="modal fade" id="orderModal<%= order.ID %>" tabindex="-1" aria-hidden="true">
+                                                <div class="modal-dialog modal-dialog-centered">
+                                                    <div class="modal-content border-0 shadow-lg rounded-4">
+                                                        <div class="modal-header border-bottom py-3">
+                                                            <h5 class="modal-title fw-bold">
+                                                                <i class="bi bi-receipt-cutoff text-primary me-2"></i> Pedido #<%= order.ID %>
+                                                            </h5>
+                                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                                                        </div>
+                                                        <div class="modal-body p-4">
+                                                            <div class="d-flex justify-content-between mb-2">
+                                                                <span class="text-muted small">Cliente:</span>
+                                                                <strong class="text-dark"><%= order.Cliente %></strong>
+                                                            </div>
+                                                            <div class="d-flex justify-content-between mb-2">
+                                                                <span class="text-muted small">Teléfono:</span>
+                                                                <strong><%= order.Telefono %></strong>
+                                                            </div>
+                                                            <div class="d-flex justify-content-between mb-3">
+                                                                <span class="text-muted small">Fecha:</span>
+                                                                <span><%= order.Fecha %></span>
+                                                            </div>
+
+                                                            <h6 class="fw-bold text-dark border-top pt-3 mb-2">Prendas Apartadas:</h6>
+                                                            <ul class="list-group list-group-flush mb-3">
+                                                                <% 
+                                                                    let items = [];
+                                                                    try { items = JSON.parse(order.Productos); } catch(e){}
+                                                                %>
+                                                                <% items.forEach(it => { %>
+                                                                    <li class="list-group-item d-flex justify-content-between align-items-center px-0 py-2">
+                                                                        <div>
+                                                                            <strong class="text-dark"><%= it.nombre %></strong>
+                                                                            <div class="text-muted small">$<%= parseFloat(it.precio).toFixed(2) %> x <%= it.cantidad %> pza(s)</div>
+                                                                        </div>
+                                                                        <span class="fw-bold text-primary">$<%= (it.precio * it.cantidad).toFixed(2) %></span>
+                                                                    </li>
+                                                                <% }) %>
+                                                            </ul>
+
+                                                            <div class="d-flex justify-content-between align-items-center bg-light p-3 rounded-3">
+                                                                <span class="fw-bold fs-6">Total a Cobrar:</span>
+                                                                <span class="fw-bold fs-4 text-primary">$<%= parseFloat(order.Total).toFixed(2) %> MXN</span>
+                                                            </div>
+                                                        </div>
+                                                        <div class="modal-footer border-0 p-3 bg-light rounded-bottom-4">
+                                                            <button type="button" class="btn btn-secondary rounded-pill px-4" data-bs-dismiss="modal">Cerrar</button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                        <% }) %>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <% } %>
+                    </div>
+
+                    <!-- ========================================== -->
+                    <!-- PESTAÑA 2: GESTIÓN DE PRODUCTOS Y STOCK    -->
+                    <!-- ========================================== -->
+                    <div class="tab-pane fade" id="tab-productos" role="tabpanel" aria-labelledby="productos-tab">
+                        <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
+                            <div>
+                                <h4 class="fw-bold mb-1 text-dark">Catálogo de Inventario</h4>
+                                <p class="text-muted small mb-0">Control de prendas, precios, categorías, fotografías y control automático de stock en Excel.</p>
+                            </div>
+                            <div class="d-flex gap-2">
+                                <button type="button" class="btn btn-primary rounded-pill px-4 shadow-sm" data-bs-toggle="modal" data-bs-target="#addProductModal">
+                                    <i class="bi bi-plus-circle me-1"></i> Añadir Nueva Prenda
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Filtro de Búsqueda Rápida en Inventario -->
+                        <div class="row g-2 mb-3">
+                            <div class="col-md-6">
+                                <div class="input-group input-group-sm">
+                                    <span class="input-group-text bg-white border-end-0 text-muted">
+                                        <i class="bi bi-search"></i>
+                                    </span>
+                                    <input type="text" id="productSearchInput" class="form-control border-start-0" placeholder="Filtrar por nombre, categoría o descripción...">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle mb-0" id="productsTable">
+                                <thead class="table-light text-muted small text-uppercase">
+                                    <tr>
+                                        <th>Prenda</th>
+                                        <th>Nombre y Detalle</th>
+                                        <th>Categoría</th>
+                                        <th>Precio (MXN)</th>
+                                        <th>Stock Disponible</th>
+                                        <th class="text-end">Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <% products.forEach(p => { 
+                                        let stockNum = parseInt(p.Stock, 10) || 0;
+                                        let isOut = stockNum <= 0;
+                                        let isLow = (stockNum > 0 && stockNum <= 3);
+                                    %>
+                                        <tr id="prod-row-<%= p.ID %>">
+                                            <td style="width: 70px;">
+                                                <% if (p.Imagen) { %>
+                                                    <img src="<%= p.Imagen %>" alt="<%= p.Nombre %>" class="rounded-3 object-fit-cover shadow-sm" style="width: 55px; height: 55px;">
+                                                <% } else { %>
+                                                    <div class="rounded-3 bg-light d-flex align-items-center justify-content-center text-muted" style="width: 55px; height: 55px;">
+                                                        <i class="bi bi-image fs-5"></i>
+                                                    </div>
+                                                <% } %>
+                                            </td>
+                                            <td>
+                                                <strong class="text-dark d-block"><%= p.Nombre %></strong>
+                                                <small class="text-muted text-truncate d-inline-block" style="max-width: 280px;" title="<%= p.Descripcion %>">
+                                                    <%= p.Descripcion || 'Sin descripción detallada' %>
+                                                </small>
+                                            </td>
+                                            <td>
+                                                <span class="badge bg-light text-dark border px-3 py-1 rounded-pill"><%= p.Categoria %></span>
+                                            </td>
+                                            <td>
+                                                <span class="fw-bold text-dark fs-6">$<%= parseFloat(p.Precio).toFixed(2) %></span>
+                                            </td>
+                                            <td>
+                                                <% if (isOut) { %>
+                                                    <span class="badge bg-danger px-3 py-2 rounded-pill">
+                                                        <i class="bi bi-x-circle me-1"></i> Agotado (0)
+                                                    </span>
+                                                <% } else if (isLow) { %>
+                                                    <span class="badge bg-warning text-dark px-3 py-2 rounded-pill fw-semibold">
+                                                        <i class="bi bi-exclamation-triangle me-1"></i> Bajo: <%= stockNum %> pzas
+                                                    </span>
+                                                <% } else { %>
+                                                    <span class="badge bg-success-subtle text-success border border-success-subtle px-3 py-2 rounded-pill">
+                                                        <i class="bi bi-check-circle me-1"></i> <%= stockNum %> unidades
+                                                    </span>
+                                                <% } %>
+                                            </td>
+                                            <td class="text-end">
+                                                <!-- Botón Editar -->
+                                                <button type="button" class="btn btn-sm btn-outline-primary rounded-circle me-1 btn-edit-product" 
+                                                    title="Editar Prenda"
+                                                    data-id="<%= p.ID %>"
+                                                    data-nombre="<%= p.Nombre %>"
+                                                    data-descripcion="<%= p.Descripcion || '' %>"
+                                                    data-precio="<%= p.Precio %>"
+                                                    data-stock="<%= p.Stock %>"
+                                                    data-categoria="<%= p.Categoria %>"
+                                                    data-imagen="<%= p.Imagen || '' %>">
+                                                    <i class="bi bi-pencil-fill"></i>
+                                                </button>
+
+                                                <!-- Botón Eliminar -->
+                                                <button type="button" class="btn btn-sm btn-outline-danger rounded-circle btn-delete-product" 
+                                                    title="Eliminar Prenda"
+                                                    data-id="<%= p.ID %>"
+                                                    data-nombre="<%= p.Nombre %>">
+                                                    <i class="bi bi-trash3-fill"></i>
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    <% }) %>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- MODAL 1: AÑADIR NUEVO PRODUCTO             -->
+    <!-- ========================================== -->
+    <div class="modal fade" id="addProductModal" tabindex="-1" aria-labelledby="addProductModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow-lg rounded-4">
+                <form id="createProductForm" enctype="multipart/form-data">
+                    <div class="modal-header border-bottom py-3">
+                        <h5 class="modal-title fw-bold" id="addProductModalLabel">
+                            <i class="bi bi-plus-circle text-primary me-2"></i> Añadir Prenda al Inventario
+                        </h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                    </div>
+                    <div class="modal-body p-4">
+                        <div class="mb-3">
+                            <label class="form-label text-dark small fw-bold text-uppercase">Nombre de la Prenda <span class="text-danger">*</span></label>
+                            <input type="text" name="nombre" class="form-control" placeholder="Ej. Camisa Lino Manga Corta" required minlength="3">
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label text-dark small fw-bold text-uppercase">Descripción</label>
+                            <textarea name="descripcion" class="form-control" rows="2" placeholder="Detalles de corte, tela o características..."></textarea>
+                        </div>
+
+                        <div class="row g-3 mb-3">
+                            <div class="col-6">
+                                <label class="form-label text-dark small fw-bold text-uppercase">Precio ($ MXN) <span class="text-danger">*</span></label>
+                                <input type="number" step="0.01" min="0.01" name="precio" class="form-control" placeholder="299.00" required>
+                            </div>
+                            <div class="col-6">
+                                <label class="form-label text-dark small fw-bold text-uppercase">Stock Inicial <span class="text-danger">*</span></label>
+                                <input type="number" step="1" min="0" name="stock" class="form-control" placeholder="10" value="10" required>
+                                <div class="form-text small">Unidades físicas disponibles.</div>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label text-dark small fw-bold text-uppercase">Categoría <span class="text-danger">*</span></label>
+                            <select name="categoria" class="form-select" required>
+                                <option value="Hombre">Hombre</option>
+                                <option value="Mujer">Mujer</option>
+                                <option value="Descuento">Descuento</option>
+                            </select>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label text-dark small fw-bold text-uppercase">Fotografía (Archivo JPG, PNG, WEBP)</label>
+                            <input type="file" name="imagen" class="form-control" accept="image/jpeg,image/png,image/webp,image/gif">
+                            <div class="form-text small">Opcional: Si se deja vacío se generará un placeholder elegante.</div>
+                        </div>
+
+                        <div class="mb-2">
+                            <label class="form-label text-dark small fw-bold text-uppercase">O Enlace Web Directo (URL)</label>
+                            <input type="url" name="imagen_url" class="form-control" placeholder="https://ejemplo.com/foto.jpg">
+                        </div>
+                    </div>
+                    <div class="modal-footer border-0 p-3 bg-light rounded-bottom-4">
+                        <button type="button" class="btn btn-secondary rounded-pill px-4" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="submit" id="btnSubmitAdd" class="btn btn-primary rounded-pill px-4 fw-bold shadow-sm">
+                            <i class="bi bi-save me-1"></i> Guardar Prenda
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- MODAL 2: EDITAR PRODUCTO EXISTENTE         -->
+    <!-- ========================================== -->
+    <div class="modal fade" id="editProductModal" tabindex="-1" aria-labelledby="editProductModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow-lg rounded-4">
+                <form id="editProductForm" enctype="multipart/form-data">
+                    <input type="hidden" name="id" id="edit-id">
+                    
+                    <div class="modal-header border-bottom py-3">
+                        <h5 class="modal-title fw-bold" id="editProductModalLabel">
+                            <i class="bi bi-pencil-square text-primary me-2"></i> Editar Prenda
+                        </h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                    </div>
+                    <div class="modal-body p-4">
+                        <div class="mb-3">
+                            <label class="form-label text-dark small fw-bold text-uppercase">Nombre de la Prenda <span class="text-danger">*</span></label>
+                            <input type="text" name="nombre" id="edit-nombre" class="form-control" required minlength="3">
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label text-dark small fw-bold text-uppercase">Descripción</label>
+                            <textarea name="descripcion" id="edit-descripcion" class="form-control" rows="2"></textarea>
+                        </div>
+
+                        <div class="row g-3 mb-3">
+                            <div class="col-6">
+                                <label class="form-label text-dark small fw-bold text-uppercase">Precio ($ MXN) <span class="text-danger">*</span></label>
+                                <input type="number" step="0.01" min="0.01" name="precio" id="edit-precio" class="form-control" required>
+                            </div>
+                            <div class="col-6">
+                                <label class="form-label text-dark small fw-bold text-uppercase">Stock Disponible <span class="text-danger">*</span></label>
+                                <input type="number" step="1" min="0" name="stock" id="edit-stock" class="form-control" required>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label text-dark small fw-bold text-uppercase">Categoría <span class="text-danger">*</span></label>
+                            <select name="categoria" id="edit-categoria" class="form-select" required>
+                                <option value="Hombre">Hombre</option>
+                                <option value="Mujer">Mujer</option>
+                                <option value="Descuento">Descuento</option>
+                            </select>
+                        </div>
+
+                        <!-- Vista Previa de Imagen Actual -->
+                        <div class="mb-3 p-3 bg-light rounded-3 d-flex align-items-center gap-3">
+                            <div id="edit-img-preview" style="width: 50px; height: 50px;" class="rounded bg-white border d-flex align-items-center justify-content-center overflow-hidden">
+                                <i class="bi bi-image text-muted fs-4"></i>
+                            </div>
+                            <div>
+                                <small class="text-muted d-block">Imagen actual</small>
+                                <span class="small fw-semibold text-truncate d-inline-block" style="max-width: 250px;" id="edit-img-path">Sin imagen</span>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label text-dark small fw-bold text-uppercase">Cambiar Fotografía (Opcional)</label>
+                            <input type="file" name="imagen" class="form-control" accept="image/jpeg,image/png,image/webp,image/gif">
+                        </div>
+
+                        <div class="mb-2">
+                            <label class="form-label text-dark small fw-bold text-uppercase">O Cambiar URL de Imagen</label>
+                            <input type="url" name="imagen_url" id="edit-imagen-url" class="form-control" placeholder="https://ejemplo.com/foto.jpg">
+                        </div>
+                    </div>
+                    <div class="modal-footer border-0 p-3 bg-light rounded-bottom-4">
+                        <button type="button" class="btn btn-secondary rounded-pill px-4" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="submit" id="btnSubmitEdit" class="btn btn-primary rounded-pill px-4 fw-bold shadow-sm">
+                            <i class="bi bi-check2-circle me-1"></i> Guardar Cambios
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- MODAL 3: CONFIRMACIÓN DE ELIMINACIÓN       -->
+    <!-- ========================================== -->
+    <div class="modal fade" id="deleteConfirmModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-sm">
+            <div class="modal-content border-0 shadow-lg rounded-4 text-center p-4">
+                <div class="mb-3 text-danger">
+                    <i class="bi bi-trash3-fill" style="font-size: 3rem;"></i>
+                </div>
+                <h5 class="fw-bold mb-2">¿Eliminar Prenda?</h5>
+                <p class="text-muted small mb-4">
+                    Estás a punto de borrar <strong id="delete-prod-name" class="text-dark">este producto</strong> del catálogo. Esta acción no se puede deshacer.
+                </p>
+                <div class="d-flex gap-2 justify-content-center">
+                    <button type="button" class="btn btn-light rounded-pill px-3 w-50" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" id="confirmDeleteBtn" class="btn btn-danger rounded-pill px-3 w-50 fw-bold">
+                        Sí, Eliminar
                     </button>
                 </div>
-                
-                <div class="table-responsive">
-                    <table class="table table-bordered bg-white shadow-sm">
-                        <thead class="table-light">
-                            <tr>
-                                <th>Imagen</th>
-                                <th>Nombre</th>
-                                <th>Categoría</th>
-                                <th>Precio</th>
-                                <th>Acciones</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <% products.forEach(p => { %>
-                                <tr>
-                                    <td>
-                                        <% if(p.Imagen) { %>
-                                            <img src="<%= p.Imagen %>" alt="img" style="width: 50px; height: 50px; object-fit: cover;">
-                                        <% } else { %>
-                                            N/A
-                                        <% } %>
-                                    </td>
-                                    <td><%= p.Nombre %></td>
-                                    <td><%= p.Categoria %></td>
-                                    <td>$<%= p.Precio %></td>
-                                    <td>
-                                        <form action="/admin/delete-product/<%= p.ID %>" method="POST" onsubmit="return confirm('¿Seguro que quieres eliminar este producto?');">
-                                            <button type="submit" class="btn btn-sm btn-danger"><i class="bi bi-trash"></i></button>
-                                        </form>
-                                    </td>
-                                </tr>
-                            <% }) %>
-                        </tbody>
-                    </table>
-                </div>
             </div>
         </div>
     </div>
 
-    <!-- Modal Añadir Producto -->
-    <div class="modal fade" id="addProductModal" tabindex="-1">
-      <div class="modal-dialog">
-        <div class="modal-content">
-          <form action="/admin/add-product" method="POST" enctype="multipart/form-data">
-              <div class="modal-header">
-                <h5 class="modal-title">Añadir Nuevo Producto</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-              </div>
-              <div class="modal-body">
-                <div class="mb-3">
-                    <label class="form-label">Nombre</label>
-                    <input type="text" name="nombre" class="form-control" required>
-                </div>
-                <div class="mb-3">
-                    <label class="form-label">Descripción</label>
-                    <textarea name="descripcion" class="form-control" rows="2"></textarea>
-                </div>
-                <div class="row">
-                    <div class="col-md-6 mb-3">
-                        <label class="form-label">Precio ($)</label>
-                        <input type="number" step="0.01" name="precio" class="form-control" required>
-                    </div>
-                    <div class="col-md-6 mb-3">
-                        <label class="form-label">Categoría</label>
-                        <select name="categoria" class="form-select" required>
-                            <option value="Hombre">Hombre</option>
-                            <option value="Mujer">Mujer</option>
-                            <option value="Descuento">Descuento</option>
-                        </select>
+    <!-- Contenedor Universal de Notificaciones Toast en el Panel -->
+    <div class="toast-container position-fixed bottom-0 end-0 p-3" style="z-index: 2050">
+        <div id="adminToast" class="toast align-items-center border-0 shadow-lg bg-white" role="alert" aria-live="assertive" aria-atomic="true">
+            <div class="d-flex">
+                <div class="toast-body d-flex align-items-center py-3 px-3">
+                    <i id="adminToastIcon" class="bi bi-check-circle-fill fs-4 me-3 text-success"></i>
+                    <div>
+                        <strong id="adminToastTitle" class="d-block mb-1">Panel de Control</strong>
+                        <span id="adminToastMsg" class="text-secondary small">Mensaje informativo</span>
                     </div>
                 </div>
-                <div class="mb-3">
-                    <label class="form-label">Imagen</label>
-                    <input type="file" name="imagen" class="form-control" accept="image/*">
-                </div>
-              </div>
-              <div class="modal-footer">
-                <button type="submit" class="btn btn-primary">Guardar Producto</button>
-              </div>
-          </form>
+                <button type="button" class="btn-close me-3 m-auto" data-bs-dismiss="toast" aria-label="Cerrar"></button>
+            </div>
         </div>
-      </div>
     </div>
 
+    <!-- Scripts de Bootstrap y Lógica del Administrador -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        /**
+         * Notificación Toast dedicada para el panel administrativo.
+         */
+        function showAdminToast(message, type = 'success', title = '') {
+            const toastEl = document.getElementById('adminToast');
+            const toastTitle = document.getElementById('adminToastTitle');
+            const toastMsg = document.getElementById('adminToastMsg');
+            const toastIcon = document.getElementById('adminToastIcon');
+
+            if (!toastEl) return;
+
+            const config = {
+                success: { icon: 'bi-check-circle-fill text-success', title: title || 'Operación Exitosa' },
+                danger: { icon: 'bi-exclamation-octagon-fill text-danger', title: title || 'Error' },
+                warning: { icon: 'bi-exclamation-triangle-fill text-warning', title: title || 'Advertencia' },
+                info: { icon: 'bi-info-circle-fill text-primary', title: title || 'Información' }
+            };
+
+            const conf = config[type] || config.info;
+            toastIcon.className = `bi ${conf.icon} fs-4 me-3`;
+            toastTitle.textContent = conf.title;
+            toastMsg.textContent = message;
+
+            const bsToast = bootstrap.Toast.getOrCreateInstance(toastEl, { delay: 4000 });
+            bsToast.show();
+        }
+
+        // ==========================================
+        // 1. AÑADIR PRODUCTO (AJAX + FEEDBACK)
+        // ==========================================
+        const createForm = document.getElementById('createProductForm');
+        if (createForm) {
+            createForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const btn = document.getElementById('btnSubmitAdd');
+                btn.disabled = true;
+                btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> Guardando...';
+
+                try {
+                    const formData = new FormData(createForm);
+                    const res = await fetch('/admin/api/products', {
+                        method: 'POST',
+                        body: formData
+                    });
+                    const data = await res.json();
+
+                    if (res.ok && data.success) {
+                        showAdminToast(data.message, 'success');
+                        const modal = bootstrap.Modal.getInstance(document.getElementById('addProductModal'));
+                        if (modal) modal.hide();
+                        createForm.reset();
+                        // Recargar la vista suavemente para reflejar las métricas actualizadas
+                        setTimeout(() => window.location.reload(), 900);
+                    } else {
+                        showAdminToast(data.message || 'Error al guardar la prenda.', 'danger');
+                    }
+                } catch (err) {
+                    showAdminToast('Error de conexión al registrar producto.', 'danger');
+                } finally {
+                    btn.disabled = false;
+                    btn.innerHTML = '<i class="bi bi-save me-1"></i> Guardar Prenda';
+                }
+            });
+        }
+
+        // ==========================================
+        // 2. EDITAR PRODUCTO (MODAL + AJAX)
+        // ==========================================
+        function openEditModal(prod) {
+            document.getElementById('edit-id').value = prod.id;
+            document.getElementById('edit-nombre').value = prod.nombre;
+            document.getElementById('edit-descripcion').value = prod.descripcion;
+            document.getElementById('edit-precio').value = prod.precio;
+            document.getElementById('edit-stock').value = prod.stock;
+            document.getElementById('edit-categoria').value = prod.categoria;
+            document.getElementById('edit-imagen-url').value = prod.imagen && !prod.imagen.startsWith('/uploads/') ? prod.imagen : '';
+
+            const preview = document.getElementById('edit-img-preview');
+            const pathSpan = document.getElementById('edit-img-path');
+            if (prod.imagen) {
+                preview.innerHTML = `<img src="${prod.imagen}" class="w-100 h-100 object-fit-cover rounded">`;
+                pathSpan.textContent = prod.imagen;
+            } else {
+                preview.innerHTML = '<i class="bi bi-image text-muted fs-4"></i>';
+                pathSpan.textContent = 'Sin imagen (placeholder activo)';
+            }
+
+            const modal = new bootstrap.Modal(document.getElementById('editProductModal'));
+            modal.show();
+        }
+
+        const editForm = document.getElementById('editProductForm');
+        if (editForm) {
+            editForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const id = document.getElementById('edit-id').value;
+                const btn = document.getElementById('btnSubmitEdit');
+                btn.disabled = true;
+                btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> Actualizando...';
+
+                try {
+                    const formData = new FormData(editForm);
+                    const res = await fetch(`/admin/api/products/${id}/edit`, {
+                        method: 'POST',
+                        body: formData
+                    });
+                    const data = await res.json();
+
+                    if (res.ok && data.success) {
+                        showAdminToast(data.message, 'success');
+                        const modal = bootstrap.Modal.getInstance(document.getElementById('editProductModal'));
+                        if (modal) modal.hide();
+                        setTimeout(() => window.location.reload(), 900);
+                    } else {
+                        showAdminToast(data.message || 'Error al actualizar prenda.', 'danger');
+                    }
+                } catch (err) {
+                    showAdminToast('Error de conexión al actualizar.', 'danger');
+                } finally {
+                    btn.disabled = false;
+                    btn.innerHTML = '<i class="bi bi-check2-circle me-1"></i> Guardar Cambios';
+                }
+            });
+        }
+
+        // ==========================================
+        // 3. ELIMINAR PRODUCTO (MODAL + AJAX)
+        // ==========================================
+        let productIdToDelete = null;
+        function openDeleteModal(id, nombre) {
+            productIdToDelete = id;
+            document.getElementById('delete-prod-name').textContent = `"${nombre}"`;
+            const modal = new bootstrap.Modal(document.getElementById('deleteConfirmModal'));
+            modal.show();
+        }
+
+        const confirmDeleteBtn = document.getElementById('confirmDeleteBtn');
+        if (confirmDeleteBtn) {
+            confirmDeleteBtn.addEventListener('click', async () => {
+                if (!productIdToDelete) return;
+                confirmDeleteBtn.disabled = true;
+                confirmDeleteBtn.innerHTML = '<span class="spinner-border spinner-border-sm"></span>';
+
+                try {
+                    const res = await fetch(`/admin/api/products/${productIdToDelete}/delete`, {
+                        method: 'POST'
+                    });
+                    const data = await res.json();
+
+                    if (res.ok && data.success) {
+                        showAdminToast(data.message, 'success');
+                        const modal = bootstrap.Modal.getInstance(document.getElementById('deleteConfirmModal'));
+                        if (modal) modal.hide();
+
+                        // Remover visualmente la fila con animación
+                        const row = document.getElementById(`prod-row-${productIdToDelete}`);
+                        if (row) {
+                            row.style.transition = 'all 0.5s ease';
+                            row.style.opacity = '0';
+                            row.style.transform = 'scale(0.9)';
+                            setTimeout(() => row.remove(), 500);
+                        }
+                    } else {
+                        showAdminToast(data.message || 'No se pudo eliminar el producto.', 'danger');
+                    }
+                } catch (err) {
+                    showAdminToast('Error de conexión al eliminar.', 'danger');
+                } finally {
+                    confirmDeleteBtn.disabled = false;
+                    confirmDeleteBtn.textContent = 'Sí, Eliminar';
+                    productIdToDelete = null;
+                }
+            });
+        }
+
+        // ==========================================
+        // 4. CAMBIO DE ESTADO DE PEDIDOS (AJAX)
+        // ==========================================
+        async function changeOrderStatus(orderId, newStatus) {
+            try {
+                const res = await fetch(`/admin/api/orders/${orderId}/status`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ estado: newStatus })
+                });
+                const data = await res.json();
+
+                if (res.ok && data.success) {
+                    showAdminToast(data.message, 'success');
+                    setTimeout(() => window.location.reload(), 800);
+                } else {
+                    showAdminToast(data.message || 'Error al actualizar estado del pedido.', 'danger');
+                }
+            } catch (err) {
+                showAdminToast('Error de comunicación con el servidor.', 'danger');
+            }
+        }
+
+        // Delegación de eventos para botones de edición y eliminación
+        document.addEventListener('click', (e) => {
+            const editBtn = e.target.closest('.btn-edit-product');
+            if (editBtn) {
+                openEditModal({
+                    id: editBtn.dataset.id,
+                    nombre: editBtn.dataset.nombre,
+                    descripcion: editBtn.dataset.descripcion,
+                    precio: parseFloat(editBtn.dataset.precio) || 0,
+                    stock: parseInt(editBtn.dataset.stock, 10) || 0,
+                    categoria: editBtn.dataset.categoria,
+                    imagen: editBtn.dataset.imagen
+                });
+            }
+
+            const delBtn = e.target.closest('.btn-delete-product');
+            if (delBtn) {
+                openDeleteModal(delBtn.dataset.id, delBtn.dataset.nombre);
+            }
+        });
+
+        // ==========================================
+        // 5. FILTRADO EN VIVO EN TABLAS
+        // ==========================================
+        const prodSearch = document.getElementById('productSearchInput');
+        if (prodSearch) {
+            prodSearch.addEventListener('input', (e) => {
+                const term = e.target.value.toLowerCase().trim();
+                const rows = document.querySelectorAll('#productsTable tbody tr');
+                rows.forEach(r => {
+                    r.style.display = r.textContent.toLowerCase().includes(term) ? '' : 'none';
+                });
+            });
+        }
+
+        const orderSearch = document.getElementById('orderSearchInput');
+        if (orderSearch) {
+            orderSearch.addEventListener('input', (e) => {
+                const term = e.target.value.toLowerCase().trim();
+                const rows = document.querySelectorAll('#ordersTable tbody tr');
+                rows.forEach(r => {
+                    r.style.display = r.textContent.toLowerCase().includes(term) ? '' : 'none';
+                });
+            });
+        }
+    </script>
 </body>
 </html>

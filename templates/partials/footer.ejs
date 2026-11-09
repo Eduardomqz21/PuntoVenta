@@ -1,22 +1,54 @@
-
-    <footer class="bg-light text-center py-4 mt-5">
+    <footer class="footer-modern bg-white text-center py-5 mt-auto border-top">
         <div class="container">
-            <p class="mb-0">&copy; 2026 Novedades Ameyalli. Todos los derechos reservados.</p>
-            <a href="/admin" class="text-muted small">Acceso Administrador</a>
+            <div class="row align-items-center gy-3">
+                <div class="col-md-4 text-md-start">
+                    <span class="fw-bold fs-5 text-dark">
+                        <i class="bi bi-shop text-primary me-2"></i>Novedades Ameyalli
+                    </span>
+                    <p class="text-muted small mb-0 mt-1">Moda accesible, catálogo digital y pedidos para recolección física en tienda.</p>
+                </div>
+                <div class="col-md-4 text-center">
+                    <span class="badge bg-light text-muted border px-3 py-2 rounded-pill">
+                        <i class="bi bi-geo-alt-fill text-danger me-1"></i> Recolección y pago presencial en tienda
+                    </span>
+                </div>
+                <div class="col-md-4 text-md-end">
+                    <% if (typeof isAdmin !== 'undefined' && isAdmin) { %>
+                        <a href="/admin" class="btn btn-sm btn-outline-secondary rounded-pill me-2">
+                            <i class="bi bi-gear-fill me-1"></i> Administración
+                        </a>
+                        <a href="/admin/logout" class="btn btn-sm btn-outline-danger rounded-pill">
+                            <i class="bi bi-box-arrow-right"></i> Salir
+                        </a>
+                    <% } else { %>
+                        <a href="/admin/login" class="text-muted small text-decoration-none hover-underline">
+                            <i class="bi bi-shield-lock me-1"></i> Acceso Empleados / Admin
+                        </a>
+                    <% } %>
+                    <p class="text-muted small mb-0 mt-2">&copy; 2026 Novedades Ameyalli. Todos los derechos reservados.</p>
+                </div>
+            </div>
         </div>
     </footer>
-    <!-- Toast Container -->
-    <div class="toast-container position-fixed bottom-0 end-0 p-3" style="z-index: 1100">
-        <div id="cartToast" class="toast align-items-center text-bg-success border-0" role="alert" aria-live="assertive" aria-atomic="true">
+
+    <!-- Contenedor Universal de Notificaciones Toast -->
+    <div class="toast-container position-fixed bottom-0 end-0 p-3" style="z-index: 2000" id="toastContainer">
+        <!-- Los toasts se inyectan dinámicamente con JavaScript o se reutiliza la plantilla base -->
+        <div id="appToast" class="toast align-items-center border-0 shadow-lg" role="alert" aria-live="assertive" aria-atomic="true">
             <div class="d-flex">
-                <div class="toast-body fw-bold" id="toastMessage">
-                    Añadido al carrito.
+                <div class="toast-body d-flex align-items-center py-3 px-3">
+                    <i id="toastIcon" class="bi bi-check-circle-fill fs-4 me-3 text-success"></i>
+                    <div>
+                        <strong id="toastTitle" class="d-block mb-1">Notificación</strong>
+                        <span id="toastMessage" class="text-secondary small">Mensaje del sistema</span>
+                    </div>
                 </div>
-                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+                <button type="button" class="btn-close me-3 m-auto" data-bs-dismiss="toast" aria-label="Cerrar"></button>
             </div>
         </div>
     </div>
 
+    <!-- Scripts de Bootstrap y Lógica del Carrito -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     <script src="/js/cart.js"></script>
 </body>
